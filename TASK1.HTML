@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopSphere | Modern E-Commerce</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cart-item-enter {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .checkout-modal {
+            background: rgba(0, 0, 0, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header/Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img src="https://placehold.co/40x40" alt="ShopSphere logo - a modern shopping cart icon with gradient colors" class="h-10 w-10 rounded-full">
+                <span class="text-xl font-bold text-gray-800">ShopSphere</span>
+            </div>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#" class="text-gray-600 hover:text-indigo-600 transition">Home</a>
+                <a href="#" class="text-gray-600 hover:text-indigo-600 transition">Products</a>
+                <a href="#" class="text-gray-600 hover:text-indigo-600 transition">About</a>
+                <a href="#" class="text-gray-600 hover:text-indigo-600 transition">Contact</a>
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <button id="cart-toggle" class="relative text-gray-600 hover:text-indigo-600 transition">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+                <button class="md:hidden text-gray-600 hover:text-indigo-600 transition">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Discover Amazing Products</h1>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">Shop the latest trends in fashion, electronics, and more with free shipping on orders over $50.</p>
+            <button class="bg-white text-indigo-600 px-6 py-3 rounded-full font-medium hover:bg-indigo-50 transition">Shop Now</button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-12">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">Featured Products</h2>
+            <div class="flex space-x-2">
+                <button class="filter-btn active px-4 py-2 rounded-full bg-indigo-600 text-white" data-category="all">All</button>
+                <button class="filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300" data-category="electronics">Electronics</button>
+                <button class="filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300" data-category="clothing">Clothing</button>
+                <button class="filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300" data-category="home">Home</button>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="product-grid">
+            <!-- Products will be dynamically inserted here -->
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800">Your Cart</h2>
+                <button id="close-cart" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div id="cart-items" class="space-y-4">
+                <!-- Cart items will be dynamically inserted here -->
+                <div class="text-center py-12 text-gray-500" id="empty-cart-message">
+                    <i class="fas fa-shopping-cart text-4xl mb-4"></i>
+                    <p>Your cart is empty</p>
+                </div>
+            </div>
+            
+            <div class="border-t mt-6 pt-6">
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-600">Subtotal:</span>
+                    <span id="cart-subtotal" class="font-medium">$0.00</span>
+                </div>
+                <button id="checkout-btn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition disabled:opacity-50" disabled>
+                    Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="fixed inset-0 flex items-center justify-center z-50 checkout-modal hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Order Confirmation</h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <img src="https://placehold.co/600x300" alt="Order confirmation illustration showing a package with a green checkmark, surrounded by stars" class="w-full h-auto rounded-lg mb-4">
+                <p class="text-center text-gray-700">Thank you for your order! Your items will be shipped soon.</p>
+            </div>
+            <button id="continue-shopping" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+                Continue Shopping
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">ShopSphere</h3>
+                    <p class="text-gray-400">Your one-stop shop for all your needs. Quality products, exceptional service.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Home</a></li>
+                        <li><a href="#" class="hover:text-white transition">Products</a></li>
+                        <li><a href="#" class="hover:text-white transition">About Us</a></li>
+                        <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Customer Service</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">FAQs</a></li>
+                        <li><a href="#" class="hover:text-white transition">Shipping Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition">Returns & Refunds</a></li>
+                        <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                    <address class="text-gray-400 not-italic">
+                        <p>123 Main Street</p>
+                        <p>New York, NY 10001</p>
+                        <p>Email: info@shopsphere.com</p>
+                        <p>Phone: (555) 123-4567</p>
+                    </address>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400">© 2023 ShopSphere. All rights reserved.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-pinterest"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Product Data
+        const products = [
+            {
+                id: 1,
+                name: "Wireless Bluetooth Headphones",
+                price: 89.99,
+                category: "electronics",
+                image: "https://placehold.co/400x300",
+                alt: "Premium wireless headphones in black with silver accents, folded on a white background",
+                rating: 4.5,
+                description: "High-quality wireless headphones with noise cancellation and 30-hour battery life."
+            },
+            {
+                id: 2,
+                name: "Smart Watch Pro",
+                price: 199.99,
+                category: "electronics",
+                image: "https://placehold.co/400x300",
+                alt: "Modern smartwatch with a black strap and round face displaying fitness metrics",
+                rating: 4.8,
+                description: "Track your fitness, receive notifications, and monitor your health with this sleek smartwatch."
+            },
+            {
+                id: 3,
+                name: "Cotton T-Shirt",
+                price: 24.99,
+                category: "clothing",
+                image: "https://placehold.co/400x300",
+                alt: "Classic white cotton t-shirt folded neatly on a wooden surface",
+                rating: 4.2,
+                description: "Comfortable 100% cotton t-shirt available in various colors."
+            },
+            {
+                id: 4,
+                name: "Denim Jeans",
+                price: 59.99,
+                category: "clothing",
+                image: "https://placehold.co/400x300",
+                alt: "Blue denim jeans with a classic straight fit, displayed on a hanger",
+                rating: 4.3,
+                description: "Stretch denim jeans for maximum comfort with a modern fit."
+            },
+            {
+                id: 5,
+                name: "Ceramic Coffee Mug",
+                price: 14.99,
+                category: "home",
+                image: "https://placehold.co/400x300",
+                alt: "White ceramic coffee mug with elegant handle and simple design",
+                rating: 4.7,
+                description: "Handcrafted ceramic mug perfect for your morning coffee."
+            },
+            {
+                id: 6,
+                name: "LED Desk Lamp",
+                price: 39.99,
+                category: "home",
+                image: "https://placehold.co/400x300",
+                alt: "Modern LED desk lamp with adjustable arm in metallic finish",
+                rating: 4.4,
+                description: "Energy-efficient LED lamp with adjustable brightness and color temperature."
+            },
+            {
+                id: 7,
+                name: "Wireless Charging Pad",
+                price: 29.99,
+                category: "electronics",
+                image: "https://placehold.co/400x300",
+                alt: "Sleek wireless charging pad with LED indicator light on a wooden table",
+                rating: 4.1,
+                description: "Qi-certified wireless charger compatible with all major smartphones."
+            },
+            {
+                id: 8,
+                name: "Organic Cotton Towel Set",
+                price: 49.99,
+                category: "home",
+                image: "https://placehold.co/400x300",
+                alt: "Set of three neatly folded organic cotton towels in neutral colors",
+                rating: 4.6,
+                description: "Soft and absorbent organic cotton towels in a set of three sizes."
+            }
+        ];
+
+        // Cart State
+        let cart = [];
+        
+        // DOM Elements
+        const productGrid = document.getElementById('product-grid');
+        const cartItems = document.getElementById('cart-items');
+        const cartCount = document.getElementById('cart-count');
+        const cartSubtotal = document.getElementById('cart-subtotal');
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const cartToggle = document.getElementById('cart-toggle');
+        const closeCart = document.getElementById('close-cart');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const emptyCartMessage = document.getElementById('empty-cart-message');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const checkoutModal = document.getElementById('checkout-modal');
+        const closeModal = document.getElementById('close-modal');
+        const continueShopping = document.getElementById('continue-shopping');
+
+        // Render Products
+        function renderProducts(productList = products) {
+            productGrid.innerHTML = '';
+            
+            productList.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card bg-white rounded-lg shadow-sm overflow-hidden transition duration-300 ease-in-out hover:shadow-md';
+                productCard.innerHTML = `
+                    <div class="relative pb-2/3 h-48">
+                        <img src="${product.image}" alt="${product.alt}" class="w-full h-full object-cover">
+                        <div class="absolute top-2 right-2 bg-white rounded-full px-2 py-1 text-xs font-semibold flex items-center">
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            ${product.rating}
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">${product.name}</h3>
+                        <p class="text-gray-500 text-sm mb-2 truncate">${product.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-indigo-600">$${product.price.toFixed(2)}</span>
+                            <button class="add-to-cart bg-indigo-600 text-white px-3 py-1 rounded-full text-sm hover:bg-indigo-700 transition" 
+                                    data-id="${product.id}">
+                                <i class="fas fa-cart-plus mr-1"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                `;
+                productGrid.appendChild(productCard);
+            });
+            
+            // Add event listeners to the new buttons
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', addToCart);
+            });
+        }
+
+        // Add to Cart
+        function addToCart(e) {
+            const productId = parseInt(e.target.closest('.add-to-cart').getAttribute('data-id'));
+            const product = products.find(p => p.id === productId);
+            
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({
+                    ...product,
+                    quantity: 1
+                });
+            }
+            
+            updateCart();
+            
+            // Show the cart
+            cartSidebar.classList.remove('translate-x-full');
+            
+            // Pulse animation
+            const button = e.target.closest('button');
+            button.innerHTML = '<i class="fas fa-check mr-1"></i> Added';
+            button.classList.remove('bg-indigo-600');
+            button.classList.add('bg-green-500');
+            
+            setTimeout(() => {
+                button.innerHTML = '<i class="fas fa-cart-plus mr-1"></i> Add';
+                button.classList.remove('bg-green-500');
+                button.classList.add('bg-indigo-600');
+            }, 1000);
+        }
+
+        // Update Cart
+        function updateCart() {
+            // Update count
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            
+            // Update subtotal
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+            
+            // Enable/disable checkout
+            checkoutBtn.disabled = cart.length === 0;
+            
+            // Show/hide empty message
+            emptyCartMessage.style.display = cart.length === 0 ? 'block' : 'none';
+            
+            // Update cart items
+            cartItems.innerHTML = '';
+            
+            if (cart.length > 0) {
+                cart.forEach(item => {
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item-enter flex items-start border-b pb-4';
+                    cartItem.innerHTML = `
+                        <img src="${item.image}" alt="${item.alt}" class="w-16 h-16 object-cover rounded mr-4">
+                        <div class="flex-1">
+                            <h4 class="font-medium">${item.name}</h4>
+                            <div class="flex justify-between items-center mt-1">
+                                <span class="text-gray-600">$${item.price.toFixed(2)}</span>
+                                <div class="flex items-center">
+                                    <button class="quantity-btn decrease px-2 h-6 rounded-l bg-gray-200 hover:bg-gray-300 text-gray-700 transition" 
+                                            data-id="${item.id}">-</button>
+                                    <span class="px-2 h-6 flex items-center border-t border-b border-gray-200">${item.quantity}</span>
+                                    <button class="quantity-btn increase px-2 h-6 rounded-r bg-gray-200 hover:bg-gray-300 text-gray-700 transition" 
+                                            data-id="${item.id}">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="remove-item ml-4 text-red-500 hover:text-red-700 transition" 
+                                data-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    cartItems.appendChild(cartItem);
+                });
+                
+                // Add event listeners to the new buttons
+                document.querySelectorAll('.quantity-btn').forEach(button => {
+                    button.addEventListener('click', updateQuantity);
+                });
+                
+                document.querySelectorAll('.remove-item').forEach(button => {
+                    button.addEventListener('click', removeItem);
+                });
+            }
+        }
+
+        // Update Quantity
+        function updateQuantity(e) {
+            const productId = parseInt(e.target.closest('button').getAttribute('data-id'));
+            const item = cart.find(item => item.id === productId);
+            const isIncrease = e.target.classList.contains('increase');
+            
+            if (isIncrease) {
+                item.quantity++;
+            } else {
+                if (item.quantity > 1) {
+                    item.quantity--;
+                }
+            }
+            
+            updateCart();
+        }
+
+        // Remove Item
+        function removeItem(e) {
+            const productId = parseInt(e.target.closest('button').getAttribute('data-id'));
+            cart = cart.filter(item => item.id !== productId);
+            updateCart();
+        }
+
+        // Filter Products
+        filterBtns.forEach(button => {
+            button.addEventListener('click', () => {
+                const category = button.getAttribute('data-category');
+                
+                // Update active button
+                filterBtns.forEach(btn => {
+                    btn.classList.remove('active', 'bg-indigo-600', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                
+                button.classList.add('active', 'bg-indigo-600', 'text-white');
+                button.classList.remove('bg-gray-200', 'text-gray-700');
+                
+                // Filter products
+                if (category === 'all') {
+                    renderProducts();
+                } else {
+                    const filteredProducts = products.filter(product => product.category === category);
+                    renderProducts(filteredProducts);
+                }
+            });
+        });
+
+        // Toggle Cart
+        cartToggle.addEventListener('click', () => {
+            cartSidebar.classList.toggle('translate-x-full');
+        });
+
+        closeCart.addEventListener('click', () => {
+            cartSidebar.classList.add('translate-x-full');
+        });
+
+        // Checkout
+        checkoutBtn.addEventListener('click', () => {
+            checkoutModal.classList.remove('hidden');
+            cartSidebar.classList.add('translate-x-full');
+        });
+
+        closeModal.addEventListener('click', () => {
+            checkoutModal.classList.add('hidden');
+        });
+
+        continueShopping.addEventListener('click', () => {
+            checkoutModal.classList.add('hidden');
+            // Optionally clear the cart after checkout
+            // cart = [];
+            // updateCart();
+        });
+
+        // Initialize
+        renderProducts();
+    </script>
+</body>
+</html>
